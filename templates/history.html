@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Appointment History</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fafb;
+            margin: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto 40px;
+            border-collapse: collapse;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead tr {
+            background-color: #1a73e8;
+            color: white;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        thead th, tbody td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f5fb;
+        }
+
+        tbody td {
+            font-size: 0.95rem;
+        }
+
+        a {
+            display: block;
+            max-width: 960px;
+            margin: 0 auto;
+            text-align: center;
+            text-decoration: none;
+            color: #1a73e8;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #135abe;
+        }
+
+        @media (max-width: 768px) {
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                display: none;
+            }
+            tbody tr {
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 10px;
+            }
+            tbody td {
+                padding-left: 50%;
+                position: relative;
+                text-align: right;
+                border: none;
+                border-bottom: 1px solid #eee;
+                font-size: 0.9rem;
+            }
+            tbody td::before {
+                position: absolute;
+                top: 12px;
+                left: 15px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: 700;
+                text-align: left;
+                content: attr(data-label);
+                color: #555;
+                font-size: 0.9rem;
+            }
+            tbody td:last-child {
+                border-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Deleted Appointment History</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Original ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Doctor</th>
+                <th>Appointment Time</th>
+                <th>Status</th>
+                <th>Deleted At</th>
+            </tr>
+        </thead>
+        <tbody>
+{% for h in history|sort(attribute='original_id', reverse=True) %}
+            <tr>
+                <td data-label="Original ID">{{ h.original_id }}</td>
+                <td data-label="Name">{{ h.name }}</td>
+                <td data-label="Email">{{ h.email }}</td>
+                <td data-label="Phone">{{ h.phone }}</td>
+                <td data-label="Doctor">{{ h.doctor }}</td>
+                <td data-label="Appointment Time">{{ h.appointment_time }}</td>
+                <td data-label="Status">{{ h.status }}</td>
+                <td data-label="Deleted At">{{ h.deleted_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+</body>
+</html>

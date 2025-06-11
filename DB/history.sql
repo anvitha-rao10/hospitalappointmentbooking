@@ -1,0 +1,1 @@
+SELECT * FROM hospitaldb.appointment_history;

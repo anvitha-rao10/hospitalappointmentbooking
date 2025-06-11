@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Duplicate Appointment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px auto;
+            max-width: 450px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #f9f9f9;
+            text-align: center;
+        }
+        h2 {
+            color: #d9534f;
+        }
+        p {
+            font-size: 16px;
+            margin: 15px 0;
+        }
+        form button {
+            padding: 10px 20px;
+            margin: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button[name="confirm"][value="yes"] {
+            background-color: #28a745;
+            color: white;
+        }
+        button[name="confirm"][value="no"] {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>Duplicate Appointment Detected</h2>
+    <p>You already have an appointment with Dr. {{ doctor }} on {{ date }}.</p>
+    <p>Are you sure you want to book another appointment today?</p>
+
+    <form method="post" action="{{ url_for('index') }}">
+        <input type="hidden" name="name" value="{{ name }}">
+        <input type="hidden" name="email" value="{{ email }}">
+        <input type="hidden" name="phone" value="{{ phone }}">
+        <input type="hidden" name="doctor" value="{{ doctor }}">
+        <input type="hidden" name="date" value="{{ date }}">
+        <input type="hidden" name="time" value="{{ time }}">
+
+        <button type="submit" name="confirm" value="yes">Yes, Book Appointment</button>
+        <button type="submit" name="confirm" value="no">No, Cancel</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,1 @@
+SELECT * FROM hospitaldb.contact_queries;

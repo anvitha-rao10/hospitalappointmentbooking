@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Doctor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h2 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 25px;
+        }
+
+        ul.messages {
+            max-width: 900px;
+            margin: 10px auto 25px;
+            padding: 12px 20px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            color: #155724;
+            list-style-type: none;
+        }
+
+        form.add-doctor-form {
+            background: white;
+            max-width: 900px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        form.add-doctor-form label {
+            font-weight: 600;
+            margin-top: 12px;
+            display: block;
+            font-size: 1rem;
+        }
+
+        form.add-doctor-form input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        form.add-doctor-form input:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+
+        button.primary-btn {
+            margin-top: 25px;
+            width: 100%;
+            padding: 12px;
+            background-color: #1a73e8;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button.primary-btn:hover {
+            background-color: #135abe;
+        }
+
+        h3 {
+            max-width: 900px;
+            margin: 40px auto 10px;
+            font-weight: 600;
+        }
+
+        ul.doctor-list {
+            max-width: 900px;
+            margin: auto;
+            padding: 0;
+            list-style: none;
+        }
+
+        ul.doctor-list li {
+            background: #fff;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-inactive {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .actions form {
+            margin: 0;
+        }
+
+        .actions button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .actions button:hover {
+            background-color: #0056b3;
+        }
+
+        .actions .delete-btn {
+            background-color: #dc3545;
+        }
+
+        .actions .delete-btn:hover {
+            background-color: #b02a37;
+        }
+
+        a.back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            color: #1a73e8;
+        }
+
+        a.back-link:hover {
+            color: #0b56a3;
+        }
+
+        @media (max-width: 600px) {
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+
+            .actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Add New Doctor</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" class="add-doctor-form">
+        <label for="name">Doctor Name:</label>
+        <input type="text" name="name" id="name" required>
+
+        <label for="specialization">Specialization:</label>
+        <input type="text" name="specialization" id="specialization" required>
+
+        <button type="submit" class="primary-btn">Add Doctor</button>
+    </form>
+
+    <h3>Existing Doctors</h3>
+    <ul class="doctor-list">
+        {% for doctor in doctors %}
+        <li>
+            <div>
+                {{ doctor.name }} ({{ doctor.specialization }}) -
+                {% if doctor.is_active %}
+                    <span class="status-active">Active</span>
+                {% else %}
+                    <span class="status-inactive">Inactive</span>
+                {% endif %}
+            </div>
+            <div class="actions">
+                <form action="{{ url_for('toggle_doctor', doctor_id=doctor.id) }}" method="post">
+                    <button type="submit">
+                        {% if doctor.is_active %} Disable {% else %} Enable {% endif %}
+                    </button>
+                </form>
+                <form action="{{ url_for('delete_doctor', doctor_id=doctor.id) }}" method="post">
+                    <button type="submit" class="delete-btn">Delete</button>
+                </form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('dashboard') }}" class="back-link">← Back to Dashboard</a>
+</body>
+</html>

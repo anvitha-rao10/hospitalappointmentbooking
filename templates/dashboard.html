@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: #f0f4f8;
+          margin: 0;
+          padding: 20px;
+          color: #333;
+          text-align: center; /* center text by default */
+        }
+
+        h1 {
+          color: #1a73e8;
+          font-size: 2rem;
+          margin-bottom: 20px;
+        }
+
+        /* Center table horizontally with margin auto */
+        table {
+          border-collapse: collapse;
+          margin: 0 auto 30px auto;
+          width: 90%;
+          max-width: 900px;
+          background: white;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          border-radius: 10px;
+          overflow: hidden;
+          text-align: left; /* table content align left for readability */
+        }
+
+        th, td {
+          padding: 12px 20px;
+          border-bottom: 1px solid #ddd;
+          font-size: 1rem;
+        }
+
+        th {
+          background-color: #1a73e8;
+          color: white;
+        }
+
+        tr:hover {
+          background-color: #f1f9ff;
+        }
+
+        table button {
+          background-color: #d9534f;
+          border: none;
+          color: white;
+          padding: 6px 12px;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          transition: background-color 0.3s ease;
+        }
+
+        table button:hover {
+          background-color: #c9302c;
+        }
+
+        /* Center and inline buttons container */
+        .button-panel {
+          display: inline-flex;
+          gap: 15px;
+          justify-content: center;
+          flex-wrap: wrap;
+          max-width: 900px;
+          width: 90%;
+        }
+
+        .button-panel form,
+        .button-panel a {
+          display: inline-block;
+          text-align: center;
+        }
+
+        .danger-btn {
+          background-color: #d9534f;
+          color: white;
+          border: none;
+          padding: 8px 14px;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+          font-size: 1rem;
+        }
+
+        .danger-btn:hover {
+          background-color: #c9302c;
+        }
+
+        .primary-btn {
+          background-color: #1a73e8;
+          color: white;
+          padding: 8px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .primary-btn:hover {
+          background-color: #135abe;
+        }
+
+        .success-btn {
+          background-color: #28a745;
+          color: white;
+          padding: 8px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .success-btn:hover {
+          background-color: #218838;
+        }
+
+        .logout-btn {
+          background-color: #6c757d;
+          color: white;
+          padding: 8px 14px;
+          border-radius: 6px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          border: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          transition: background-color 0.3s ease;
+        }
+
+        .logout-btn:hover {
+          background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <h1>All Appointments</h1>
+
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Doctor</th>
+                <th>Appointment Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+{% for appointment in appointments|sort(attribute='appointment_time') %}
+            <tr>
+                <td>{{ appointment.id }}</td>
+                <td>{{ appointment.name }}</td>
+                <td>{{ appointment.email }}</td>
+                <td>{{ appointment.phone }}</td>
+                <td>{{ appointment.doctor }}</td>
+                <td>{{ appointment.appointment_time }}</td>
+                <td>{{ appointment.status }}</td> 
+                <td>
+                    <form method="post" action="{{ url_for('delete_appointment', appointment_id=appointment.id) }}" onsubmit="return confirm('Are you sure you want to delete this appointment?');" style="margin:0;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="button-panel">
+        <form action="{{ url_for('delete_all') }}" method="post" onsubmit="return confirm('Are you sure you want to delete all appointments?');" style="margin: 0;">
+            <button type="submit" class="danger-btn">Delete All Appointments</button>
+        </form>
+        <a href="{{ url_for('view_history') }}" class="primary-btn">View Deleted Appointments History</a>
+        <a href="{{ url_for('add_doctor') }}" class="success-btn">Add New Doctor</a>
+        <a href="{{ url_for('add_admin') }}" class="primary-btn">Add New Admin</a>
+        <a href="{{ url_for('admin_logout') }}" class="logout-btn">Logout</a>
+    </div>
+</body>
+</html>
