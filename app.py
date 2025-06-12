@@ -16,8 +16,7 @@ db.init_app(app)
 def send_email(to_email, subject, body, reply_to=None):
     sender_email = 'hospitalbooking814@gmail.com'
     sender_password = 'scti refg hhyw sjyi'
-    msg = MIMEText(body)
-    
+    msg = MIMEText(body, 'html')
     msg['Subject'] = subject
     msg['From'] = sender_email
     msg['To'] = to_email
@@ -83,7 +82,6 @@ def index():
             flash("Appointments must be between 08:00 and 22:00.")
             return redirect(url_for('index'))
 
-
         same_day_appointments = Appointment.query.filter(
             Appointment.doctor == doctor,
             Appointment.status == 'confirmed',
@@ -117,8 +115,14 @@ def index():
         db.session.commit()
 
         subject = f"Appointment {status.capitalize()} - {doctor}"
-        body = (f"Hi {name},\n\nYour appointment with Dr. {doctor} is {status} at {appointment_time}.\n"
-                f"Your appointment ID is: {new_appointment.id}\n\nThank you.")
+        cancel_link = url_for('cancel_appointment', appointment_id=new_appointment.id, _external=True)
+        body = f"""<p>Hi {name},</p>
+<p>Your appointment with Dr. {doctor} is <strong>{status}</strong> at <strong>{appointment_time}</strong>.</p>
+<p>Your appointment ID is: <strong>{new_appointment.id}</strong></p>
+<p>If you wish to cancel the appointment, click the button below:</p>
+<p><a href="{cancel_link}" style="padding: 10px 20px; background-color: #d9534f; color: white; text-decoration: none; border-radius: 5px;">Cancel Appointment</a></p>
+<p>Thank you.</p>"""
+
         send_email(email, subject, body)
 
         if status == 'confirmed':
@@ -130,6 +134,25 @@ def index():
 
     return render_template('index.html', doctors=doctors)
 
+@app.route('/cancel/<int:appointment_id>', methods=['GET'])
+def cancel_appointment(appointment_id):
+    appointment = Appointment.query.get_or_404(appointment_id)
+    history = AppointmentHistory(
+        original_id=appointment.id,
+        name=appointment.name,
+        email=appointment.email,
+        phone=appointment.phone,
+        doctor=appointment.doctor,
+        appointment_time=appointment.appointment_time,
+        status='cancelled'
+    )
+    db.session.add(history)
+    db.session.delete(appointment)
+    db.session.commit()
+    return f"""
+        <h2>Appointment Cancelled</h2>
+        <p>Your appointment with Dr. {appointment.doctor} scheduled on {appointment.appointment_time.strftime('%Y-%m-%d %H:%M')} has been successfully cancelled.</p>
+    """
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -274,8 +297,15 @@ def delete_all():
 def view_history():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
-    history = AppointmentHistory.query.order_by(AppointmentHistory.deleted_at.desc()).all()
-    return render_template('history.html', history=history)
+
+    filter_status = request.args.get('status')
+    if filter_status:
+        history = AppointmentHistory.query.filter_by(status=filter_status).order_by(AppointmentHistory.deleted_at.desc()).all()
+    else:
+        history = AppointmentHistory.query.order_by(AppointmentHistory.deleted_at.desc()).all()
+
+    return render_template('history.html', history=history, filter_status=filter_status)
+
 
 @app.route('/admin/logout')
 def admin_logout():

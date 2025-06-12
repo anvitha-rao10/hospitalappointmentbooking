@@ -105,7 +105,18 @@
     </style>
 </head>
 <body>
-    <h1>Deleted Appointment History</h1>
+        <h1>Deleted Appointment History</h1>
+    <div style="text-align:center; margin-bottom: 20px;">
+        <form method="GET" action="{{ url_for('view_history') }}">
+            <label for="status" style="font-weight:600;">Filter by Status:</label>
+            <select name="status" onchange="this.form.submit()" style="padding: 5px 10px; border-radius: 4px;">
+                <option value="">All</option>
+                <option value="confirmed" {% if filter_status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                <option value="waiting" {% if filter_status == 'waiting' %}selected{% endif %}>Waiting</option>
+                <option value="cancelled" {% if filter_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+        </form>
+    </div>
     <table>
         <thead>
             <tr>
