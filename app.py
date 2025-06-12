@@ -220,8 +220,11 @@ def toggle_doctor(doctor_id):
         flash("Doctor not found.")
     return redirect(url_for('add_doctor'))
 
-@app.route('/add_admin', methods=['GET', 'POST'])
+@app.route('/admin/add_admin', methods=['GET', 'POST'])
 def add_admin():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -235,6 +238,7 @@ def add_admin():
         return redirect(url_for('add_admin'))
     admins = Admin.query.all()
     return render_template('add_admin.html', admins=admins)
+
 
 @app.route('/delete_admin/<int:admin_id>', methods=['POST'])
 def delete_admin(admin_id):
