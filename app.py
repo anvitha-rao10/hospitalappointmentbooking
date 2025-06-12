@@ -239,9 +239,10 @@ def add_admin():
     admins = Admin.query.all()
     return render_template('add_admin.html', admins=admins)
 
-
-@app.route('/delete_admin/<int:admin_id>', methods=['POST'])
+@app.route('/admin/delete_admin/<int:admin_id>', methods=['POST'])
 def delete_admin(admin_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     admin_to_delete = Admin.query.get_or_404(admin_id)
     db.session.delete(admin_to_delete)
     db.session.commit()
