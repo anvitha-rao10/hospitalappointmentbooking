@@ -306,7 +306,6 @@ def view_history():
 
     return render_template('history.html', history=history, filter_status=filter_status)
 
-
 @app.route('/admin/logout')
 def admin_logout():
     session.pop('admin_logged_in', None)
