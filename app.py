@@ -297,13 +297,11 @@ def delete_all():
 def view_history():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
-
     filter_status = request.args.get('status')
     if filter_status:
         history = AppointmentHistory.query.filter_by(status=filter_status).order_by(AppointmentHistory.deleted_at.desc()).all()
     else:
         history = AppointmentHistory.query.order_by(AppointmentHistory.deleted_at.desc()).all()
-
     return render_template('history.html', history=history, filter_status=filter_status)
 
 @app.route('/admin/logout')
