@@ -64,6 +64,20 @@
             color: #135abe;
         }
 
+        /* Status color classes */
+        .status-cancelled {
+            color: red;
+            font-weight: bold;
+        }
+        .status-waiting {
+            color: #1a73e8;
+            font-weight: bold;
+        }
+        .status-confirmed {
+            color: green;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             table, thead, tbody, th, td, tr {
                 display: block;
@@ -105,7 +119,7 @@
     </style>
 </head>
 <body>
-        <h1>Deleted Appointment History</h1>
+    <h1>Deleted Appointment History</h1>
     <div style="text-align:center; margin-bottom: 20px;">
         <form method="GET" action="{{ url_for('view_history') }}">
             <label for="status" style="font-weight:600;">Filter by Status:</label>
@@ -131,7 +145,7 @@
             </tr>
         </thead>
         <tbody>
-{% for h in history|sort(attribute='original_id', reverse=True) %}
+        {% for h in history|sort(attribute='original_id', reverse=True) %}
             <tr>
                 <td data-label="Original ID">{{ h.original_id }}</td>
                 <td data-label="Name">{{ h.name }}</td>
@@ -139,10 +153,16 @@
                 <td data-label="Phone">{{ h.phone }}</td>
                 <td data-label="Doctor">{{ h.doctor }}</td>
                 <td data-label="Appointment Time">{{ h.appointment_time }}</td>
-                <td data-label="Status">{{ h.status }}</td>
+                <td data-label="Status"
+                    class="{% if h.status == 'cancelled' %}status-cancelled
+                           {% elif h.status == 'waiting' %}status-waiting
+                           {% elif h.status == 'confirmed' %}status-confirmed
+                           {% endif %}">
+                    {{ h.status }}
+                </td>
                 <td data-label="Deleted At">{{ h.deleted_at }}</td>
             </tr>
-            {% endfor %}
+        {% endfor %}
         </tbody>
     </table>
     <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>

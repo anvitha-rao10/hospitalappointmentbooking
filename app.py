@@ -30,6 +30,10 @@ def send_email(to_email, subject, body, reply_to=None):
     except Exception as e:
         print("Email sending failed:", e)
 
+HOSPITAL_OPEN_HOUR = 8
+HOSPITAL_CLOSE_HOUR = 22
+APPOINTMENT_DURATION = 30 
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     doctors = Doctor.query.filter_by(is_active=True).all()
@@ -88,11 +92,13 @@ def index():
             db.func.date(Appointment.appointment_time) == requested_time.date()
         ).all()
 
+        new_start = requested_time
+        new_end = new_start + timedelta(minutes=30)
         conflict = False
         for a in same_day_appointments:
             existing_start = a.appointment_time
             existing_end = existing_start + timedelta(minutes=30)
-            if existing_start <= requested_time < existing_end:
+            if new_start < existing_end and existing_start < new_end:
                 conflict = True
                 break
 
@@ -133,6 +139,19 @@ def index():
         return redirect(url_for('index'))
 
     return render_template('index.html', doctors=doctors)
+
+@app.route('/doctor_corner')
+def doctor_corner():
+    doctors = Doctor.query.filter_by(is_active=True).all()
+    appointments_by_doctor = {}
+    for doctor in doctors:
+        appointments = Appointment.query.filter_by(doctor=doctor.name).order_by(Appointment.appointment_time).all()
+        appointments_by_doctor[doctor.name] = {
+            'specialization': doctor.specialization,
+            'appointments': appointments
+        }
+    return render_template('doctor_corner.html', appointments_by_doctor=appointments_by_doctor)
+
 
 @app.route('/cancel/<int:appointment_id>', methods=['GET'])
 def cancel_appointment(appointment_id):
@@ -244,6 +263,9 @@ def delete_admin(admin_id):
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
     admin_to_delete = Admin.query.get_or_404(admin_id)
+    if admin_to_delete.username == 'anvitha':
+        flash("Default admin 'anvitha' cannot be deleted.")
+        return redirect(url_for('add_admin'))
     db.session.delete(admin_to_delete)
     db.session.commit()
     flash('Admin deleted successfully!')

@@ -9,7 +9,7 @@
           margin: 0;
           padding: 20px;
           color: #333;
-          text-align: center; /* center text by default */
+          text-align: center;
         }
 
         h1 {
@@ -18,7 +18,6 @@
           margin-bottom: 20px;
         }
 
-        /* Center table horizontally with margin auto */
         table {
           border-collapse: collapse;
           margin: 0 auto 30px auto;
@@ -28,7 +27,7 @@
           box-shadow: 0 2px 8px rgba(0,0,0,0.1);
           border-radius: 10px;
           overflow: hidden;
-          text-align: left; /* table content align left for readability */
+          text-align: left;
         }
 
         th, td {
@@ -61,7 +60,6 @@
           background-color: #c9302c;
         }
 
-        /* Center and inline buttons container */
         .button-panel {
           display: inline-flex;
           gap: 15px;
@@ -147,6 +145,22 @@
         .logout-btn:hover {
           background-color: #5a6268;
         }
+
+        /* Status coloring */
+        .status-confirmed {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-waiting {
+            color: #1a73e8;
+            font-weight: bold;
+        }
+
+        .status-cancelled {
+            color: #dc3545;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -166,7 +180,7 @@
             </tr>
         </thead>
         <tbody>
-{% for appointment in appointments|sort(attribute='appointment_time') %}
+        {% for appointment in appointments|sort(attribute='appointment_time') %}
             <tr>
                 <td>{{ appointment.id }}</td>
                 <td>{{ appointment.name }}</td>
@@ -174,14 +188,14 @@
                 <td>{{ appointment.phone }}</td>
                 <td>{{ appointment.doctor }}</td>
                 <td>{{ appointment.appointment_time }}</td>
-                <td>{{ appointment.status }}</td> 
+                <td class="status-{{ appointment.status | lower }}">{{ appointment.status }}</td>
                 <td>
                     <form method="post" action="{{ url_for('delete_appointment', appointment_id=appointment.id) }}" onsubmit="return confirm('Are you sure you want to delete this appointment?');" style="margin:0;">
                         <button type="submit">Delete</button>
                     </form>
                 </td>
             </tr>
-            {% endfor %}
+        {% endfor %}
         </tbody>
     </table>
 
