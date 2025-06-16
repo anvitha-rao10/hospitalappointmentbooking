@@ -82,8 +82,10 @@ def index():
         if requested_time < datetime.now():
             flash("Cannot book past appointments.")
             return redirect(url_for('index'))
-        if not (8 <= requested_time.hour < 22):
-            flash("Appointments must be between 08:00 and 22:00.")
+
+        appointment_end = requested_time + timedelta(minutes=30)
+        if not (HOSPITAL_OPEN_HOUR <= requested_time.hour < HOSPITAL_CLOSE_HOUR) or appointment_end.hour >= HOSPITAL_CLOSE_HOUR:
+            flash("Appointments must start and end between 08:00 and 22:00.")
             return redirect(url_for('index'))
 
         same_day_appointments = Appointment.query.filter(
@@ -110,8 +112,17 @@ def index():
                 Appointment.doctor == doctor,
                 db.func.date(Appointment.appointment_time) == requested_time.date()
             ).order_by(Appointment.appointment_time.desc()).first()
-            appointment_time = (last.appointment_time + timedelta(minutes=30)) if last else (requested_time + timedelta(minutes=30))
-            status = 'waiting'
+            if last:
+                next_slot = last.appointment_time + timedelta(minutes=30)
+                next_slot_end = next_slot + timedelta(minutes=30)
+                if next_slot.hour >= HOSPITAL_CLOSE_HOUR or next_slot_end.hour > HOSPITAL_CLOSE_HOUR:
+                    flash("Slots are packed for today. Please book for the next day.")
+                    return redirect(url_for('index'))
+                appointment_time = next_slot
+                status = 'waiting'
+            else:
+                flash("Slots are packed for today. Please book for the next day.")
+                return redirect(url_for('index'))
 
         new_appointment = Appointment(
             name=name, email=email, phone=phone,
@@ -156,22 +167,13 @@ def doctor_corner():
 @app.route('/cancel/<int:appointment_id>', methods=['GET'])
 def cancel_appointment(appointment_id):
     appointment = Appointment.query.get_or_404(appointment_id)
-    history = AppointmentHistory(
-        original_id=appointment.id,
-        name=appointment.name,
-        email=appointment.email,
-        phone=appointment.phone,
-        doctor=appointment.doctor,
-        appointment_time=appointment.appointment_time,
-        status='cancelled'
-    )
-    db.session.add(history)
-    db.session.delete(appointment)
+    appointment.status = 'cancelled'
     db.session.commit()
     return f"""
         <h2>Appointment Cancelled</h2>
         <p>Your appointment with Dr. {appointment.doctor} scheduled on {appointment.appointment_time.strftime('%Y-%m-%d %H:%M')} has been successfully cancelled.</p>
     """
+
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
