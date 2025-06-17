@@ -32,7 +32,7 @@ def send_email(to_email, subject, body, reply_to=None):
 
 HOSPITAL_OPEN_HOUR = 8
 HOSPITAL_CLOSE_HOUR = 22
-APPOINTMENT_DURATION = 30 
+APPOINTMENT_DURATION = 30
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -56,7 +56,9 @@ def index():
         if confirm == 'no':
             flash("Appointment booking cancelled.")
             return redirect(url_for('index'))
-        if confirm != 'yes':
+
+        if confirm is None:
+            # Check for duplicate appointments
             duplicates = Appointment.query.filter(
                 Appointment.name == name,
                 Appointment.email == email,
@@ -82,10 +84,8 @@ def index():
         if requested_time < datetime.now():
             flash("Cannot book past appointments.")
             return redirect(url_for('index'))
-
-        appointment_end = requested_time + timedelta(minutes=30)
-        if not (HOSPITAL_OPEN_HOUR <= requested_time.hour < HOSPITAL_CLOSE_HOUR) or appointment_end.hour >= HOSPITAL_CLOSE_HOUR:
-            flash("Appointments must start and end between 08:00 and 22:00.")
+        if not (8 <= requested_time.hour < 22):
+            flash("Appointments must be between 08:00 and 22:00.")
             return redirect(url_for('index'))
 
         same_day_appointments = Appointment.query.filter(
@@ -112,17 +112,8 @@ def index():
                 Appointment.doctor == doctor,
                 db.func.date(Appointment.appointment_time) == requested_time.date()
             ).order_by(Appointment.appointment_time.desc()).first()
-            if last:
-                next_slot = last.appointment_time + timedelta(minutes=30)
-                next_slot_end = next_slot + timedelta(minutes=30)
-                if next_slot.hour >= HOSPITAL_CLOSE_HOUR or next_slot_end.hour > HOSPITAL_CLOSE_HOUR:
-                    flash("Slots are packed for today. Please book for the next day.")
-                    return redirect(url_for('index'))
-                appointment_time = next_slot
-                status = 'waiting'
-            else:
-                flash("Slots are packed for today. Please book for the next day.")
-                return redirect(url_for('index'))
+            appointment_time = (last.appointment_time + timedelta(minutes=30)) if last else (requested_time + timedelta(minutes=30))
+            status = 'waiting'
 
         new_appointment = Appointment(
             name=name, email=email, phone=phone,
@@ -162,7 +153,6 @@ def doctor_corner():
             'appointments': appointments
         }
     return render_template('doctor_corner.html', appointments_by_doctor=appointments_by_doctor)
-
 
 @app.route('/cancel/<int:appointment_id>', methods=['GET'])
 def cancel_appointment(appointment_id):
