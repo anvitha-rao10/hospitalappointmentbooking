@@ -58,7 +58,6 @@ def index():
             return redirect(url_for('index'))
 
         if confirm is None:
-            # Check for duplicate appointments
             duplicates = Appointment.query.filter(
                 Appointment.name == name,
                 Appointment.email == email,
