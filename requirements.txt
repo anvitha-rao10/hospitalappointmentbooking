@@ -3,3 +3,4 @@ pytest
 pytest-flask
 SQLAlchemy
 pymysql
+Flask-SQLAlchemy
