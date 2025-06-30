@@ -73,4 +73,4 @@ def test_delete_appointment(client):
     db.session.commit()
 
     res = client.post(f'/admin/delete/{new_appt.id}', follow_redirects=True)
-    assert b"Deleted & archived" in res.data
+    assert b"Deleted & archived." in res.data
