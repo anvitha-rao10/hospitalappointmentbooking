@@ -166,6 +166,17 @@
 <body>
     <h1>All Appointments</h1>
 
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for message in messages %}
+        <li style="color: green; font-weight: bold;">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+
     <table border="1" cellpadding="5" cellspacing="0">
         <thead>
             <tr>
