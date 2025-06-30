@@ -29,3 +29,11 @@ def test_admin_login_invalid(client):
         'password': 'wrong'
     }, follow_redirects=True)
     assert b"Invalid credentials" in res.data
+
+def test_add_doctor(client):
+    client.post('/admin/login', data={'username': 'admin', 'password': 'admin'})
+    res = client.post('/admin/add_doctor', data={
+        'name': 'Dr. Test',
+        'specialization': 'Dermatology'
+    }, follow_redirects=True)
+    assert b"Doctor added successfully." in res.data
