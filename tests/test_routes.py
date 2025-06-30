@@ -14,3 +14,11 @@ def test_contact_form(client):
         'message': 'Test message'
     }, follow_redirects=True)
     assert b"Thank you for contacting us" in res.data
+
+def test_admin_login_valid(client):
+    res = client.post('/admin/login', data={
+        'username': 'admin',
+        'password': 'admin'
+    }, follow_redirects=True)
+    assert res.status_code == 200
+    assert b"Admin Dashboard" in res.data
