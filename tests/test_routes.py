@@ -44,3 +44,16 @@ def test_toggle_doctor(client):
     doctor = Doctor.query.first()
     res = client.post(f'/admin/toggle_doctor/{doctor.id}', follow_redirects=True)
     assert doctor.is_active in [True, False]  # toggled
+
+def test_book_appointment(client):
+    future_time = (datetime.now() + timedelta(days=1)).strftime('%H:%M')
+    future_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+    res = client.post('/', data={
+        'name': 'Anvi',
+        'email': 'anvi@example.com',
+        'phone': '9876543210',
+        'doctor': 'Dr. Smith',
+        'date': future_date,
+        'time': future_time
+    }, follow_redirects=True)
+    assert b"Appointment booked successfully" in res.data or b"Added to waiting list" in res.data
