@@ -37,3 +37,10 @@ def test_add_doctor(client):
         'specialization': 'Dermatology'
     }, follow_redirects=True)
     assert b"Doctor added successfully." in res.data
+
+def test_toggle_doctor(client):
+    client.post('/admin/login', data={'username': 'admin', 'password': 'admin'})
+    from models import Doctor
+    doctor = Doctor.query.first()
+    res = client.post(f'/admin/toggle_doctor/{doctor.id}', follow_redirects=True)
+    assert doctor.is_active in [True, False]  # toggled
