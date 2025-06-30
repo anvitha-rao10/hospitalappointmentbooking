@@ -22,3 +22,10 @@ def test_admin_login_valid(client):
     }, follow_redirects=True)
     assert res.status_code == 200
     assert b"Admin Dashboard" in res.data
+
+def test_admin_login_invalid(client):
+    res = client.post('/admin/login', data={
+        'username': 'wrong',
+        'password': 'wrong'
+    }, follow_redirects=True)
+    assert b"Invalid credentials" in res.data
