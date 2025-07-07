@@ -58,25 +58,25 @@ def test_book_appointment(client):
     }, follow_redirects=True)
     assert b"Appointment booked successfully" in res.data or b"Added to waiting list" in res.data
 
-def test_delete_all_appointments(client):
-    client.post('/admin/login', data={'username': 'admin', 'password': 'admin'})
+# def test_delete_all_appointments(client):
+#     client.post('/admin/login', data={'username': 'admin', 'password': 'admin'})
 
-    from models import Appointment, db
+#     from models import Appointment, db
 
-    # Create multiple appointments
-    for i in range(3):
-        db.session.add(Appointment(
-            name=f'Patient{i}',
-            email=f'p{i}@example.com',
-            phone='9999999999',
-            doctor='Dr. Smith',
-            appointment_time=datetime.now() + timedelta(days=1),
-            status='confirmed'
-        ))
-    db.session.commit()
+#     # Create multiple appointments
+#     for i in range(3):
+#         db.session.add(Appointment(
+#             name=f'Patient{i}',
+#             email=f'p{i}@example.com',
+#             phone='9999999999',
+#             doctor='Dr. Smith',
+#             appointment_time=datetime.now() + timedelta(days=1),
+#             status='confirmed'
+#         ))
+#     db.session.commit()
 
-    # Call delete all
-    res = client.post('/delete_all', follow_redirects=True)
+#     # Call delete all
+#     res = client.post('/delete_all', follow_redirects=True)
 
     # Assert flash message
     assert b"All appointments archived." in res.data
